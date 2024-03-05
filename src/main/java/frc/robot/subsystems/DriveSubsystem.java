@@ -232,7 +232,9 @@ public class DriveSubsystem extends SubsystemBase {
   public double getHeading() {
     return Rotation2d.fromDegrees(m_gyro.getAngle(IMUAxis.kZ)).getDegrees();
   }
-
+  public void getCurrentSpeeds(){
+    
+  }
   /**
    * Returns the turn rate of the robot.
    *

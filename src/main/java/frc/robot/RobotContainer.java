@@ -2,8 +2,9 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot;
 
+package frc.robot;
+ 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -14,6 +15,7 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.PS4Controller;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.PS4Controller.Button;
 import frc.robot.Constants.AutoConstants;
@@ -36,27 +38,26 @@ import java.util.List;
  * (including subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-    public int autoSelector = 1;
-    /*
-     * 1 = amp
-     * 2 = speaker
-     * 3 = neither
-     */
+    public double startRunTime = Timer.getFPGATimestamp();
+    public double macroTime = 0;
+    public String macroSelector = "Tri";
   // The robot's subsystems
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
   private final Arm m_robotArm = new Arm();
   private final IntakeShooter m_intakeShooter = new IntakeShooter();
-
   // The driver's controller
   PS4Controller m_driverController = new PS4Controller(0);
+
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    // Configure the button bindings
-    configureButtonBindings();
 
+    // Configure the button bindings
+
+
+    configureButtonBindings();
     // Configure default commands
     m_robotDrive.setDefaultCommand(
         // The left stick controls translation of the robot.
@@ -68,15 +69,43 @@ public class RobotContainer {
                 -MathUtil.applyDeadband(m_driverController.getRightX(), OIConstants.kDriveDeadband),
                 true, true),
             m_robotDrive));
-    m_robotArm.setDefaultCommand(new RunCommand(() -> {
-        if (m_driverController.getPOV() == 0) {
-            m_robotArm.armUp();
-        } else if (m_driverController.getPOV() == 180) {
-            m_robotArm.armDown();
-        } else {
-            m_robotArm.armStop();
-        }
-    }, m_robotArm));
+    m_robotArm.setDefaultCommand(
+            new RunCommand(() -> {
+                if (Timer.getFPGATimestamp() > (startRunTime + macroTime)){
+                    if (m_driverController.getTriangleButtonPressed()) {
+                        startRunTime = Timer.getFPGATimestamp();
+                        macroTime = 0.3;
+                        macroSelector = "Speaker";
+                    } else if (m_driverController.getSquareButtonPressed()) {
+                        startRunTime = Timer.getFPGATimestamp();
+                        macroTime = 2.1;
+                        macroSelector = "Amp";
+                    } else if (m_driverController.getCrossButtonPressed()) {
+                        startRunTime = Timer.getFPGATimestamp();
+                        macroTime = 2;
+                        macroSelector = "floorAmp";
+                    } else if (m_driverController.getCircleButtonPressed()) {
+                        startRunTime = Timer.getFPGATimestamp();
+                        macroTime = 0.3;
+                        macroSelector = "floorSpeaker";
+                    } else if (m_driverController.getPOV() == 0) {
+                        m_robotArm.armUp();
+                    } else if (m_driverController.getPOV() == 180) {
+                        m_robotArm.armDown();
+                    } else {
+                        m_robotArm.armStop();
+                    }
+                } else if (macroSelector != "floorAmp") {
+                    m_robotArm.armUp();
+                } else if (macroSelector != "floorSpeaker") {
+                    m_robotArm.armUp();
+                } else {
+                    m_robotArm.armDown();
+                }
+        }, m_robotArm)
+        );
+
+
     m_intakeShooter.setDefaultCommand(new RunCommand(() -> {
         if (m_driverController.getR2Button()) {
             m_intakeShooter.shoot();
@@ -85,6 +114,9 @@ public class RobotContainer {
         }
         if (m_driverController.getL2Button()) {
             m_intakeShooter.intake();
+        } else 
+        if (m_driverController.getL1Button()){
+            m_intakeShooter.unJam();
         } else {
             m_intakeShooter.stopIntake();
         }
@@ -127,7 +159,7 @@ public class RobotContainer {
         // Pass through these two interior waypoints, making an 's' curve path
         List.of(new Translation2d(0.5, 0.01)),
         // End 3 meters straight ahead of where we started, facing forward
-        new Pose2d(1, 0, new Rotation2d(0)),
+        new Pose2d(2, 0, new Rotation2d(0)),
         config);
 
     var thetaController = new ProfiledPIDController(

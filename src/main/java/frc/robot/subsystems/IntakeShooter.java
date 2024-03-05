@@ -18,8 +18,8 @@ public class IntakeShooter extends SubsystemBase {
     }
     
     public void shoot() {
-        shooterL.set(-0.8);
-        shooterR.set(0.8);
+        shooterL.set(1);
+        shooterR.set(1);
     }
     
     public void stopShoot() {
@@ -28,10 +28,17 @@ public class IntakeShooter extends SubsystemBase {
     }
 
     public void intake() {
-        intake.set(-0.8);
+        intake.set(-0.6);
     }
 
     public void stopIntake() {
         intake.set(0);
     }
+
+    public void unJam(){
+        intake.set(0.8);
+        shooterL.set(0.8);
+        shooterR.set(-0.8);
+    }
+
 }
