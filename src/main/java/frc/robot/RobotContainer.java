@@ -4,7 +4,9 @@
 
 
 package frc.robot;
- 
+
+
+import com.pathplanner.lib.*;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -66,8 +68,7 @@ public class RobotContainer {
             () -> m_robotDrive.drive(
                 -MathUtil.applyDeadband(m_driverController.getLeftY(), OIConstants.kDriveDeadband),
                 -MathUtil.applyDeadband(m_driverController.getLeftX(), OIConstants.kDriveDeadband),
-                -MathUtil.applyDeadband(m_driverController.getRightX(), OIConstants.kDriveDeadband),
-                true, true),
+                -MathUtil.applyDeadband(m_driverController.getRightX(), OIConstants.kDriveDeadband)),
             m_robotDrive));
     m_robotArm.setDefaultCommand(
             new RunCommand(() -> {
@@ -182,6 +183,6 @@ public class RobotContainer {
     m_robotDrive.resetOdometry(moveOut.getInitialPose());
 
     // Run path following command, then stop at the end.
-    return swerveControllerCommand.andThen(() -> m_robotDrive.drive(0, 0, 0, false, false));
+    return swerveControllerCommand.andThen(() -> m_robotDrive.setX());
   }
 }
