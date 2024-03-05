@@ -1,0 +1,37 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.38346819550782024,
+      "y": 6.845966834790812
+    },
+    "rotation": 0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "toAmp"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ampGetNote"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ampScore2nd"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}
