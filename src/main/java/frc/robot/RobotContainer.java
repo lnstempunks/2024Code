@@ -61,7 +61,14 @@ public class RobotContainer {
 
     // Auto Commands
     NamedCommands.registerCommand("toSpeakerAngle", new RunCommand(()->m_robotArm.armUp(), m_robotArm).withTimeout(0.3));
-
+    NamedCommands.registerCommand("toAmpAngle", new RunCommand(()->m_robotArm.armUp(), m_robotArm).withTimeout(2.1));
+    NamedCommands.registerCommand("toFloorSpeaker", new RunCommand(()->m_robotArm.armDown(), m_robotArm).withTimeout(0.3));
+    NamedCommands.registerCommand("toFloorAmp", new RunCommand(()->m_robotArm.armDown(), m_robotArm).withTimeout(2.3));
+    NamedCommands.registerCommand("toFloorStart", new RunCommand(()->m_robotArm.armDown(), m_robotArm).withTimeout(1.8));
+    NamedCommands.registerCommand("toAmpStart", new RunCommand(()->m_robotArm.armUp(), m_robotArm).withTimeout(0.2));
+    NamedCommands.registerCommand("shoot", new RunCommand(()->m_intakeShooter.shoot(), m_intakeShooter).withTimeout(3.5));
+    NamedCommands.registerCommand("intake", new RunCommand(()->m_intakeShooter.intake(), m_intakeShooter).withTimeout(1));
+    NamedCommands.registerCommand("reverseIntake", new RunCommand(()->m_intakeShooter.unJam(), m_intakeShooter).withTimeout(0.2));
 
     // Configure the button bindings
 
