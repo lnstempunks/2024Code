@@ -5,8 +5,8 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.NamedCommands;
 
-import com.pathplanner.lib.*;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -42,19 +42,26 @@ import java.util.List;
 public class RobotContainer {
     public double startRunTime = Timer.getFPGATimestamp();
     public double macroTime = 0;
-    public String macroSelector = "Tri";
+    public int armHold = -1;
+    
+    // 0 = n/a, 1 = up, 2 = down
+    public int macroSelector = 0;
   // The robot's subsystems
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
   private final Arm m_robotArm = new Arm();
   private final IntakeShooter m_intakeShooter = new IntakeShooter();
   // The driver's controller
   PS4Controller m_driverController = new PS4Controller(0);
-
+  public double armStartEncoderValue = m_robotArm.getEncoderValue();
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+
+    // Auto Commands
+    NamedCommands.registerCommand("toSpeakerAngle", new RunCommand(()->m_robotArm.armUp(), m_robotArm).withTimeout(0.3));
+
 
     // Configure the button bindings
 
@@ -72,35 +79,38 @@ public class RobotContainer {
             m_robotDrive));
     m_robotArm.setDefaultCommand(
             new RunCommand(() -> {
+                if (m_robotArm.getEncoderValue() > armStartEncoderValue){
+                    armHold = 0;
+                } else {
+                    armHold = 1;
+                }
                 if (Timer.getFPGATimestamp() > (startRunTime + macroTime)){
                     if (m_driverController.getTriangleButtonPressed()) {
                         startRunTime = Timer.getFPGATimestamp();
                         macroTime = 0.3;
-                        macroSelector = "Speaker";
+                        macroSelector = 1;
                     } else if (m_driverController.getSquareButtonPressed()) {
                         startRunTime = Timer.getFPGATimestamp();
                         macroTime = 2.1;
-                        macroSelector = "Amp";
+                        macroSelector = 1;
                     } else if (m_driverController.getCrossButtonPressed()) {
                         startRunTime = Timer.getFPGATimestamp();
                         macroTime = 2;
-                        macroSelector = "floorAmp";
+                        macroSelector = 2;
                     } else if (m_driverController.getCircleButtonPressed()) {
                         startRunTime = Timer.getFPGATimestamp();
                         macroTime = 0.3;
-                        macroSelector = "floorSpeaker";
+                        macroSelector = 2;
                     } else if (m_driverController.getPOV() == 0) {
                         m_robotArm.armUp();
                     } else if (m_driverController.getPOV() == 180) {
                         m_robotArm.armDown();
-                    } else {
+                    } else if (armHold == 1){
                         m_robotArm.armStop();
                     }
-                } else if (macroSelector != "floorAmp") {
+                } else if (macroSelector == 1) {
                     m_robotArm.armUp();
-                } else if (macroSelector != "floorSpeaker") {
-                    m_robotArm.armUp();
-                } else {
+                }  else if (macroSelector == 2){
                     m_robotArm.armDown();
                 }
         }, m_robotArm)
@@ -122,6 +132,7 @@ public class RobotContainer {
             m_intakeShooter.stopIntake();
         }
     }, m_intakeShooter));
+
   }
 
   /**

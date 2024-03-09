@@ -37,7 +37,7 @@ public class IntakeShooter extends SubsystemBase {
 
     public void unJam(){
         intake.set(0.8);
-        shooterL.set(0.8);
+        shooterL.set(-0.8);
         shooterR.set(-0.8);
     }
 
