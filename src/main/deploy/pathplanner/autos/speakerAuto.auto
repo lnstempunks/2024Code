@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.41178475519344193,
-      "y": 6.887856966597124
+      "x": 1.2537638750491173,
+      "y": 5.5196408968316515
     },
     "rotation": 0
   },
@@ -12,9 +12,15 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "ampScore1"
+            "name": "toFloorStart"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "toSpeakerAngle"
           }
         },
         {
@@ -45,6 +51,12 @@
                     }
                   ]
                 }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "armHold"
+                }
               }
             ]
           }
@@ -52,19 +64,13 @@
         {
           "type": "named",
           "data": {
-            "name": "toFloorAmp"
+            "name": "toFloorSpeaker"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "ampGetNote"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "ampScore2"
+            "pathName": "speakerGetNote"
           }
         },
         {
@@ -74,6 +80,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "toSpeakerAngle"
+          }
+        },
+        {
           "type": "parallel",
           "data": {
             "commands": [
@@ -81,6 +93,12 @@
                 "type": "named",
                 "data": {
                   "name": "shoot"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "armHold"
                 }
               },
               {
@@ -103,6 +121,12 @@
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "toFloorSpeaker"
           }
         }
       ]

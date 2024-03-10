@@ -5,6 +5,7 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.MathUtil;
@@ -20,12 +21,15 @@ import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.PS4Controller.Button;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.IntakeShooter;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Shooter;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
@@ -40,6 +44,7 @@ import java.util.List;
  * (including subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+    private final SendableChooser<Command> autoChooser;
     public double startRunTime = Timer.getFPGATimestamp();
     public double macroTime = 0;
     public int armHold = -1;
@@ -49,7 +54,8 @@ public class RobotContainer {
   // The robot's subsystems
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
   private final Arm m_robotArm = new Arm();
-  private final IntakeShooter m_intakeShooter = new IntakeShooter();
+  private final Shooter m_shooter = new Shooter();
+  private final Intake m_intake = new Intake();
   // The driver's controller
   PS4Controller m_driverController = new PS4Controller(0);
   public double armStartEncoderValue = m_robotArm.getEncoderValue();
@@ -66,23 +72,24 @@ public class RobotContainer {
     NamedCommands.registerCommand("toFloorAmp", new RunCommand(()->m_robotArm.armDown(), m_robotArm).withTimeout(2.3));
     NamedCommands.registerCommand("toFloorStart", new RunCommand(()->m_robotArm.armDown(), m_robotArm).withTimeout(1.8));
     NamedCommands.registerCommand("toAmpStart", new RunCommand(()->m_robotArm.armUp(), m_robotArm).withTimeout(0.2));
-    NamedCommands.registerCommand("shoot", new RunCommand(()->m_intakeShooter.shoot(), m_intakeShooter).withTimeout(3.5));
-    NamedCommands.registerCommand("intake", new RunCommand(()->m_intakeShooter.intake(), m_intakeShooter).withTimeout(1));
-    NamedCommands.registerCommand("reverseIntake", new RunCommand(()->m_intakeShooter.unJam(), m_intakeShooter).withTimeout(0.2));
+    NamedCommands.registerCommand("shoot", new RunCommand(()->m_shooter.shoot(), m_shooter).withTimeout(3.5));
+    NamedCommands.registerCommand("intake", new RunCommand(()->m_intake.intake(), m_intake).withTimeout(1));
+    NamedCommands.registerCommand("reverseIntake", new RunCommand(()->m_intake.intakeBack(), m_intake).withTimeout(0.2));
+    NamedCommands.registerCommand("holdArm", new RunCommand(()->m_robotArm.armStop(), m_robotArm).withTimeout(3.5));
 
-    // Configure the button bindings
-
-
-    configureButtonBindings();
     // Configure default commands
     m_robotDrive.setDefaultCommand(
         // The left stick controls translation of the robot.
         // Turning is controlled by the X axis of the right stick.
         new RunCommand(
-            () -> m_robotDrive.drive(
+            () -> {
+                if (m_driverController.getR1Button()){
+                    m_robotDrive.setX();
+                } else{
+                m_robotDrive.drive(
                 -MathUtil.applyDeadband(m_driverController.getLeftY(), OIConstants.kDriveDeadband),
                 -MathUtil.applyDeadband(m_driverController.getLeftX(), OIConstants.kDriveDeadband),
-                -MathUtil.applyDeadband(m_driverController.getRightX(), OIConstants.kDriveDeadband)),
+                -MathUtil.applyDeadband(m_driverController.getRightX(), OIConstants.kDriveDeadband));}},
             m_robotDrive));
     m_robotArm.setDefaultCommand(
             new RunCommand(() -> {
@@ -124,83 +131,32 @@ public class RobotContainer {
         );
 
 
-    m_intakeShooter.setDefaultCommand(new RunCommand(() -> {
-        if (m_driverController.getR2Button()) {
-            m_intakeShooter.shoot();
+    m_shooter.setDefaultCommand(new RunCommand(() -> {
+        if (m_driverController.getL1Button()){
+            m_shooter.shooterBack();
+        } else if (m_driverController.getR2Button()) {
+            m_shooter.shoot();
         } else {
-            m_intakeShooter.stopShoot();
+            m_shooter.stopShoot();
         }
+    }, m_shooter));
+
+    m_intake.setDefaultCommand(new RunCommand(()-> {
         if (m_driverController.getL2Button()) {
-            m_intakeShooter.intake();
+            m_intake.intake();
         } else 
         if (m_driverController.getL1Button()){
-            m_intakeShooter.unJam();
+            m_intake.intakeBack();
         } else {
-            m_intakeShooter.stopIntake();
+            m_intake.stopIntake();
         }
-    }, m_intakeShooter));
+    }, m_intake));
 
+    autoChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData("Auto Chooser", autoChooser);
   }
 
-  /**
-   * Use this method to define your button->command mappings. Buttons can be
-   * created by
-   * instantiating a {@link edu.wpi.first.wpilibj.GenericHID} or one of its
-   * subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then calling
-   * passing it to a
-   * {@link JoystickButton}.
-   */
-  private void configureButtonBindings() {
-    new JoystickButton(m_driverController, Button.kR1.value)
-        .whileTrue(new RunCommand(
-            () -> m_robotDrive.setX(),
-            m_robotDrive));
-  }
-
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
   public Command getAutonomousCommand() {
-    // Create config for trajectory
-    TrajectoryConfig config = new TrajectoryConfig(
-        AutoConstants.kMaxSpeedMetersPerSecond,
-        AutoConstants.kMaxAccelerationMetersPerSecondSquared)
-        // Add kinematics to ensure max speed is actually obeyed
-        .setKinematics(DriveConstants.kDriveKinematics);
-
-    // An example trajectory to follow. All units in meters.
-    Trajectory moveOut = TrajectoryGenerator.generateTrajectory(
-        // Start at the origin facing the +X direction
-        new Pose2d(0, 0, new Rotation2d(0)),
-        // Pass through these two interior waypoints, making an 's' curve path
-        List.of(new Translation2d(0.5, 0.01)),
-        // End 3 meters straight ahead of where we started, facing forward
-        new Pose2d(2, 0, new Rotation2d(0)),
-        config);
-
-    var thetaController = new ProfiledPIDController(
-        AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
-    thetaController.enableContinuousInput(-Math.PI, Math.PI);
-
-    SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
-        moveOut,
-        m_robotDrive::getPose, // Functional interface to feed supplier
-        DriveConstants.kDriveKinematics,
-
-        // Position controllers
-        new PIDController(AutoConstants.kPXController, 0, 0),
-        new PIDController(AutoConstants.kPYController, 0, 0),
-        thetaController,
-        m_robotDrive::setModuleStates,
-        m_robotDrive);
-
-    // Reset odometry to the starting pose of the trajectory.
-    m_robotDrive.resetOdometry(moveOut.getInitialPose());
-
-    // Run path following command, then stop at the end.
-    return swerveControllerCommand.andThen(() -> m_robotDrive.setX());
+    return autoChooser.getSelected();
   }
 }
