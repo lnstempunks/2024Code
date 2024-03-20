@@ -27,10 +27,16 @@ public class Arm extends SubsystemBase {
         armR.set(0.2);
     }
 
-    public void armStop() {
-        armL.set(0.03);
-        armR.set(-0.03);
+    public void armStopDown() {
+        armL.set(0.04);
+        armR.set(-0.04);
     }
+
+    public void armStopUp() {
+        armL.set(0);
+        armR.set(0);
+    }
+
     public double getEncoderValue() {
         return armEncoder.getPosition();
     }
