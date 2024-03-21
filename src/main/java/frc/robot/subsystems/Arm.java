@@ -28,7 +28,7 @@ public class Arm extends SubsystemBase {
     }
 
     public void armStopDown() {
-        armL.set(0.04);
+        armL.set(0.04 );
         armR.set(-0.04);
     }
 
