@@ -9,6 +9,7 @@ public class Arm extends SubsystemBase {
     CANSparkMax armL = new CANSparkMax(9, MotorType.kBrushless);
     CANSparkMax armR = new CANSparkMax(12, MotorType.kBrushless);
     RelativeEncoder armEncoder = armL.getEncoder();
+    public double encoderStart = armEncoder.getPosition();
 
     public Arm(){
         armL.setInverted(true);
@@ -37,7 +38,21 @@ public class Arm extends SubsystemBase {
         armR.set(0);
     }
 
+    public void armHold(){
+        if (getEncoderValue() > 3.0) { // number of motor rotations when arm is up
+            armL.set(0);
+            armR.set(0);
+        } else {
+            armL.set(0.04 );
+            armR.set(-0.04);
+        }
+    }
+
     public double getEncoderValue() {
         return armEncoder.getPosition();
+    }
+
+    public void resetEncoder() {
+        encoderStart = getEncoderValue();
     }
 }

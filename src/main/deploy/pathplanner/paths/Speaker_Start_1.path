@@ -1,0 +1,52 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 0.3981276533981646,
+        "y": 7.1391559925977
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 1.8347545266519112,
+        "y": 6.728691171668058
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 1.2630356689284812,
+        "y": 5.511956166769477
+      },
+      "prevControl": {
+        "x": 1.29235458470917,
+        "y": 4.984215682717081
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Speaker_Shot_Waypoint"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 360.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": null,
+  "previewStartingState": {
+    "rotation": 0.0,
+    "velocity": 0
+  },
+  "useDefaultConstraints": true
+}

@@ -1,0 +1,70 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 0.7352951848760846,
+        "y": 4.485794114445372
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.056275223661559,
+        "y": 0.954900798690486
+      },
+      "isLocked": false,
+      "linkedName": "Speaker_Source_Side_Shot"
+    },
+    {
+      "anchor": {
+        "x": 7.871193520164819,
+        "y": 0.7838737899698015
+      },
+      "prevControl": {
+        "x": 6.871193520164819,
+        "y": 0.7838737899698015
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "eventMarkers": [
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0.7,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "intake"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 360.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": null,
+  "previewStartingState": {
+    "rotation": -58.97553962253161,
+    "velocity": 0
+  },
+  "useDefaultConstraints": true
+}

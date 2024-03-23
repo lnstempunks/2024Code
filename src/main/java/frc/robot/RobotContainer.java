@@ -46,6 +46,23 @@ public class RobotContainer {
   // The driver's controller
   PS4Controller m_driverController = new PS4Controller(0);
   public double armStartEncoderValue = m_robotArm.getEncoderValue();
+  ArmTarget target;
+
+  private enum ArmTarget {
+    AMP(1.5),
+    SPEAKER(3.0),
+    FLOOR(0.0);
+
+    private final double value;
+
+    ArmTarget(double value) {
+        this.value = value;
+    }
+
+    public double getValue() {
+        return this.value;
+    }
+  }
 
   /**armStartEncoderValue
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -53,7 +70,7 @@ public class RobotContainer {
   public RobotContainer() {
 
 
-    // Shooter Macro
+    // Macros
 
     ParallelCommandGroup shooterMacro = new ParallelCommandGroup(
         new SequentialCommandGroup(
@@ -79,6 +96,15 @@ public class RobotContainer {
         )
         
     );
+    ParallelCommandGroup armMacro = new ParallelCommandGroup(
+        new RunCommand(() -> {
+            if (m_robotArm.getEncoderValue() < target.getValue()) {
+                m_robotArm.armUp();
+            } else if (m_robotArm.getEncoderValue() > target.getValue()) {
+                m_robotArm.armDown();
+            }
+        }, m_robotArm).until(() -> {return m_robotArm.getEncoderValue() == target.getValue();})
+    );
 
     // Auto Commands
     NamedCommands.registerCommand("toSpeakerAngle", new RunCommand(()->m_robotArm.armUp(), m_robotArm).withTimeout(0.3));
@@ -87,10 +113,9 @@ public class RobotContainer {
     NamedCommands.registerCommand("toFloorAmp", new RunCommand(()->m_robotArm.armDown(), m_robotArm).withTimeout(2.3));
     NamedCommands.registerCommand("toFloorStart", new RunCommand(()->m_robotArm.armDown(), m_robotArm).withTimeout(1.8));
     NamedCommands.registerCommand("toAmpStart", new RunCommand(()->m_robotArm.armUp(), m_robotArm).withTimeout(0.2));
-    NamedCommands.registerCommand("shoot", new RunCommand(()->m_shooter.shoot(), m_shooter).withTimeout(3.5));
+    NamedCommands.registerCommand("shoot", shooterMacro);
     NamedCommands.registerCommand("intake", new RunCommand(()->m_intake.intake(), m_intake).withTimeout(1));
-    NamedCommands.registerCommand("reverseIntake", new RunCommand(()->m_intake.intakeBack(), m_intake).withTimeout(0.2));
-    NamedCommands.registerCommand("holdArm", new RunCommand(()->m_robotArm.armStopDown(), m_robotArm).withTimeout(3.5));
+    NamedCommands.registerCommand("armHold", new RunCommand(()->m_robotArm.armHold(), m_robotArm).withTimeout(3.5));
 
     // Configure default commands
     m_robotDrive.setDefaultCommand(
@@ -110,41 +135,25 @@ public class RobotContainer {
             new RunCommand(() -> {
                 SmartDashboard.putNumber("Arm Encoder", m_robotArm.getEncoderValue());
                 SmartDashboard.putNumber("Arm Encoder Start", armStartEncoderValue);
-                if (m_robotArm.getEncoderValue() > armStartEncoderValue){
-                    armHold = 0;
-                } else {
-                    armHold = 1;
-                }
-                if (Timer.getFPGATimestamp() > (startRunTime + macroTime)){
-                    if (m_driverController.getTriangleButtonPressed()) {
-                        startRunTime = Timer.getFPGATimestamp();
-                        macroTime = 0.3;
-                        armMacroSelector = 1;
+                if(!armMacro.isScheduled()) {
+                    if(m_driverController.getTriangleButtonPressed()) {
+                        target = ArmTarget.SPEAKER;
+                        armMacro.schedule();
                     } else if (m_driverController.getSquareButtonPressed()) {
-                        startRunTime = Timer.getFPGATimestamp();
-                        macroTime = 2.1;
-                        armMacroSelector = 1;
+                        target = ArmTarget.AMP;
+                        armMacro.schedule();
                     } else if (m_driverController.getCrossButtonPressed()) {
-                        startRunTime = Timer.getFPGATimestamp();
-                        macroTime = 2;
-                        armMacroSelector = 2;
+                        target = ArmTarget.FLOOR;
+                        armMacro.schedule();
                     } else if (m_driverController.getCircleButtonPressed()) {
-                        startRunTime = Timer.getFPGATimestamp();
-                        macroTime = 0.3;
-                        armMacroSelector = 2;
+                        m_robotArm.resetEncoder();
                     } else if (m_driverController.getPOV() == 0) {
                         m_robotArm.armUp();
                     } else if (m_driverController.getPOV() == 180) {
                         m_robotArm.armDown();
-                    } else if (armHold == 1){
-                        m_robotArm.armStopDown();
                     } else {
-                        m_robotArm.armStopUp();
+                        m_robotArm.armHold();
                     }
-                } else if (armMacroSelector == 1) {
-                    m_robotArm.armUp();
-                }  else if (armMacroSelector == 2){
-                    m_robotArm.armDown();
                 }
         }, m_robotArm)
         );

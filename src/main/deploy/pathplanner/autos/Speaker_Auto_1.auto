@@ -1,0 +1,67 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.3981276533981646,
+      "y": 7.1391559925977
+    },
+    "rotation": 0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "toFloorStart"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Speaker_Start_1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "toSpeakerAngle"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Speaker_Path_Cycle_1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "toSpeakerAngle"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Speaker_Finish_1"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}
